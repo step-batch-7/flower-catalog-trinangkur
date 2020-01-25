@@ -12,6 +12,10 @@ ul {
   display: flex;
 }
 
+#mainImage {
+  border: solid black 1px;
+}
+
 #rightBar {
   margin-top: 250px;
   margin-right: 5px;

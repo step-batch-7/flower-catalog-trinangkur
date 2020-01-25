@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <link rel="stylesheet" href="../public/css/guestBook.css" />
+    <title>Guest Book</title>
+  </head>
+  <body>
+    <h1><a href="index.html">&lt;&lt;</a>Guest Book</h1>
+    <h2>Leave a comment</h2>
+    <form action="guestBook" method="POST">
+      <div class="input">
+        <label>Name: </label>
+        <input type="text" name="name" required />
+      </div>
+      <div class="input">
+        <label>Comment: </label>
+        <textarea name="comment" required></textarea>
+      </div>
+      <div class="input"><input type="submit" value="submit" /></div>
+    </form>
+    <hr />
+
+    <div>
+      __comments__
+    </div>
+  </body>
+</html>

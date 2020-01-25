@@ -59,6 +59,7 @@ const loadTemplate = (templateFileName, propertyBag) => {
 
 const findHandler = req => {
   if (req.method === 'GET') return serveHomePage;
+  if (req.method === 'post') return serveGuestPage;
 
   return () => new Response();
 };

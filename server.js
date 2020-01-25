@@ -46,20 +46,41 @@ const serveHomePage = function(req) {
   return res;
 };
 
-const loadTemplate = (templateFileName, propertyBag) => {
+const loadTemplate = (templateFileName, comments) => {
   const content = fs.readFileSync(`./template/${templateFileName}`, 'utf8');
-  const replaceKeyWithValue = (content, key) => {
-    const pattern = new RegExp(`__${key}__`, 'g');
-    return content.replace(pattern, propertyBag[key]);
-  };
-  const keys = Object.keys(propertyBag);
-  const html = keys.reduce(replaceKeyWithValue, content);
+  const html = content.replace('__comments__', JSON.stringify(comments));
   return html;
 };
 
+const addComments = function(comments, body) {
+  const newComments = {
+    data: new Date(),
+    name: body.name,
+    comment: body.comment
+  };
+  comments.unshift(newComments);
+  fs.writeFileSync('./comments.json', JSON.stringify(comments));
+  return comments;
+};
+
+const updateGuestPage = function(req) {
+  let comments = JSON.parse(fs.readFileSync('./comments.json', 'utf8'));
+  comments = addComments(comments, req.body);
+  const content = loadTemplate(req.url, comments);
+  const res = new Response();
+  res.setHeader('Content-Type', CONTENT_TYPES.html);
+  res.setHeader('Content-Length', content.length);
+  res.statusCode = 200;
+  res.body = content;
+  return res;
+};
+
 const findHandler = req => {
+  if (req.method === 'GET' && req.url === '/guestBook.html')
+    return serveGuestPage;
   if (req.method === 'GET') return serveHomePage;
-  if (req.method === 'post') return serveGuestPage;
+  if (req.method === 'POST' && req.url === '/guestBook.html')
+    return updateGuestPage;
 
   return () => new Response();
 };

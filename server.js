@@ -1,8 +1,8 @@
 const fs = require('fs');
 const { Server } = require('net');
 
-const Request = require('./request');
-const Response = require('./response');
+const Request = require('./lib/request');
+const Response = require('./lib/response');
 
 const CONTENT_TYPES = require('./lib/mimeTypes');
 

@@ -4,13 +4,7 @@ const { Server } = require('net');
 const Request = require('./request');
 const Response = require('./response');
 
-const CONTENT_TYPES = {
-  html: 'text/html',
-  css: 'text/css',
-  js: 'application/javascript',
-  json: 'application/json',
-  gif: 'image/gif'
-};
+const CONTENT_TYPES = require('./lib/mimeTypes');
 
 const getPath = function(url) {
   if (url === '/') return `${__dirname}/public/index.html`;

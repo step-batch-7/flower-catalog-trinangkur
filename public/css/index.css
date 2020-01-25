@@ -1,0 +1,22 @@
+h1 {
+  text-align: right;
+  margin-right: 350px;
+  color: #f3a718;
+}
+
+ul {
+  margin-left: 10px;
+}
+
+#mainBody {
+  display: flex;
+}
+
+#rightBar {
+  margin-top: 300px;
+  align-content: center;
+}
+
+#animatingPot {
+  margin-left: 40px;
+}

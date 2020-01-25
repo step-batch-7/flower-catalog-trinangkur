@@ -1,0 +1,8 @@
+**FLOWER CATALOG**
+
+__done__ get all content
+__done__ create a local project folder
+__done__ install npm and add package.json
+__done__ create static home page
+create server.js
+connect home page with sever  

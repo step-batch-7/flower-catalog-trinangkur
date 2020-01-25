@@ -1,0 +1,11 @@
+h1 {
+  text-align: center;
+}
+#mainBody {
+  display: flex;
+}
+#rightBar {
+  margin-top: 250px;
+  margin-left: 5px;
+  align-content: center;
+}

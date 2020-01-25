@@ -57,19 +57,9 @@ const loadTemplate = (templateFileName, propertyBag) => {
   return html;
 };
 
-const serveGamePage = function(req) {
-  const content = loadTemplate(req.url, req.body);
-  const res = new Response();
-  res.setHeader('Content-Type', CONTENT_TYPES.html);
-  res.setHeader('Content-Length', content.length);
-  res.statusCode = 200;
-  res.body = content;
-  return res;
-};
-
 const findHandler = req => {
+  console.log(req.url);
   if (req.method === 'GET') return serveHomePage;
-  if (req.method === 'POST' && req.url === '/game.html') return serveGamePage;
 
   return () => new Response();
 };

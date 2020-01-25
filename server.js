@@ -46,27 +46,58 @@ const serveHomePage = function(req) {
   return res;
 };
 
-const loadTemplate = (templateFileName, comments) => {
+const loadTemplate = (templateFileName, replacer) => {
   const content = fs.readFileSync(`./template/${templateFileName}`, 'utf8');
-  const html = content.replace('__comments__', JSON.stringify(comments));
+  const html = content.replace('__comments__', replacer);
   return html;
 };
 
-const addComments = function(comments, body) {
+const addComments = function(comments, reqBody) {
   const newComments = {
-    data: new Date(),
-    name: body.name,
-    comment: body.comment
+    date: new Date(),
+    name: reqBody.name,
+    comment: reqBody.comment
   };
   comments.unshift(newComments);
   fs.writeFileSync('./comments.json', JSON.stringify(comments));
   return comments;
 };
 
+const replaceSpecialChar = function(text) {
+  text = text.replace(/%0D%0A/g, '<br/>');
+  text = text.replace(/\+/g, ' ');
+  text = text.replace(/%3F/g, '?');
+  text = text.replace(/%2C/g, ',');
+  return text;
+};
+
+const formatComments = function(comments) {
+  return comments.reduce(
+    (text, comment) =>
+      text +
+      `<h3>${replaceSpecialChar(comment.name)}</h3>
+      <p>commented on: ${comment.date}</p>
+      <p class="comment">${replaceSpecialChar(comment.comment)}</p>`,
+    ''
+  );
+};
 const updateGuestPage = function(req) {
   let comments = JSON.parse(fs.readFileSync('./comments.json', 'utf8'));
   comments = addComments(comments, req.body);
-  const content = loadTemplate(req.url, comments);
+  const formatedComments = formatComments(comments);
+  const content = loadTemplate(req.url, formatedComments);
+  const res = new Response();
+  res.setHeader('Content-Type', CONTENT_TYPES.html);
+  res.setHeader('Content-Length', content.length);
+  res.statusCode = 200;
+  res.body = content;
+  return res;
+};
+
+const serveGuestPage = function(req) {
+  const comments = JSON.parse(fs.readFileSync('./comments.json', 'utf8'));
+  let replacer = formatComments(comments);
+  const content = loadTemplate(req.url, replacer);
   const res = new Response();
   res.setHeader('Content-Type', CONTENT_TYPES.html);
   res.setHeader('Content-Length', content.length);
@@ -90,7 +121,6 @@ const handleRequest = function(socket) {
   console.log('connected with', remote);
   socket.setEncoding('utf8');
   socket.on('data', text => {
-    console.log(text);
     const req = Request.parse(text);
     const handler = findHandler(req);
     const res = handler(req);

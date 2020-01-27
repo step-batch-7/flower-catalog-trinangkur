@@ -43,6 +43,14 @@ const loadTemplate = (templateFileName, replacer) => {
   return html;
 };
 
+const parseDate = comments => {
+  comments.map(comment => {
+    comment.date = new Date(comment.date).toLocaleString();
+    return comment;
+  });
+  return comments;
+};
+
 const addComments = function(comments, reqBody) {
   const newComments = {
     date: new Date(),
@@ -51,7 +59,7 @@ const addComments = function(comments, reqBody) {
   };
   comments.unshift(newComments);
   fs.writeFileSync('./comments.json', JSON.stringify(comments, null, 2));
-  return comments;
+  return parseDate(comments);
 };
 
 const replaceSpecialChar = function(text) {
@@ -67,14 +75,15 @@ const formatComments = function(comments) {
     (text, comment) =>
       text +
       `<h3>${replaceSpecialChar(comment.name)}</h3>
-      <p>commented on: ${comment.date.toString()}</p>
+      <p>commented on: ${comment.date.toLocaleString()}</p>
       <p class="comment">${replaceSpecialChar(comment.comment)}</p>`,
     ''
   );
 };
 
 const serveGuestPage = function(req) {
-  const comments = JSON.parse(fs.readFileSync('./comments.json', 'utf8'));
+  let comments = JSON.parse(fs.readFileSync('./comments.json', 'utf8'));
+  comments = parseDate(comments);
   let replacer = formatComments(comments);
   const content = loadTemplate(req.url, replacer);
   const res = new Response();

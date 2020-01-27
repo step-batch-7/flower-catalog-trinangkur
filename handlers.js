@@ -50,7 +50,7 @@ const addComments = function(comments, reqBody) {
     comment: reqBody.comment
   };
   comments.unshift(newComments);
-  fs.writeFileSync('./comments.json', JSON.stringify(comments));
+  fs.writeFileSync('./comments.json', JSON.stringify(comments, null, 2));
   return comments;
 };
 

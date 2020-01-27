@@ -9,12 +9,15 @@ const {
 } = require('./handlers');
 
 const findHandler = req => {
-  if (req.method === 'GET' && req.url === '/guestBook.html')
-    return serveGuestPage;
-  if (req.method === 'GET') return servePage;
-  if (req.method === 'POST' && req.url === '/guestBook.html')
-    return updateGuestPage;
-  return defaultResponse;
+  const handlers = {
+    GET: {
+      '/guestBook.html': serveGuestPage,
+      other: servePage
+    },
+    POST: { '/guestBook.html': updateGuestPage }
+  };
+  const methodHandler = handlers[req.method];
+  return methodHandler[req.url] || methodHandler.other || defaultResponse;
 };
 
 const handleRequest = function(socket) {

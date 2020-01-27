@@ -51,32 +51,36 @@ const parseDate = comments => {
   return comments;
 };
 
-const addComments = function(comments, reqBody) {
-  const newComments = {
-    date: new Date(),
-    name: reqBody.name,
-    comment: reqBody.comment
-  };
-  comments.unshift(newComments);
-  fs.writeFileSync('./comments.json', JSON.stringify(comments, null, 2));
-  return parseDate(comments);
-};
-
 const replaceSpecialChar = function(text) {
-  text = text.replace(/%0D%0A/g, '<br/>');
+  text = text.replace(/%0D%0A/g, '\r\n');
   text = text.replace(/\+/g, ' ');
   text = text.replace(/%3F/g, '?');
   text = text.replace(/%2C/g, ',');
   return text;
 };
 
+const addComments = function(comments, reqBody) {
+  const newComments = {
+    date: new Date(),
+    name: replaceSpecialChar(reqBody.name),
+    comment: replaceSpecialChar(reqBody.comment)
+  };
+  comments.unshift(newComments);
+  fs.writeFileSync('./comments.json', JSON.stringify(comments, null, 2));
+  return parseDate(comments);
+};
+
+const replaceHTMLChar = text => {
+  return text.replace(/\r\n/g, '<br/>');
+};
+
 const formatComments = function(comments) {
   return comments.reduce(
     (text, comment) =>
       text +
-      `<h3>${replaceSpecialChar(comment.name)}</h3>
+      `<h3>${replaceHTMLChar(comment.name)}</h3>
       <p>commented on: ${comment.date.toLocaleString()}</p>
-      <p class="comment">${replaceSpecialChar(comment.comment)}</p>`,
+      <p class="comment">${replaceHTMLChar(comment.comment)}</p>`,
     ''
   );
 };

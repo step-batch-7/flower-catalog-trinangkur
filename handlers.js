@@ -67,7 +67,7 @@ const formatComments = function(comments) {
     (text, comment) =>
       text +
       `<h3>${replaceSpecialChar(comment.name)}</h3>
-      <p>commented on: ${comment.date}</p>
+      <p>commented on: ${comment.date.toString()}</p>
       <p class="comment">${replaceSpecialChar(comment.comment)}</p>`,
     ''
   );

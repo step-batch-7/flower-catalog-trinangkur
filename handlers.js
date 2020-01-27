@@ -26,7 +26,7 @@ const getContentAndType = function(path) {
   return [contentType, content];
 };
 
-const serveHomePage = function(req) {
+const servePage = function(req) {
   const path = getPath(req.url);
   const [contentType, content] = getContentAndType(path);
   const res = new Response();
@@ -102,7 +102,7 @@ const defaultResponse = () => new Response();
 
 module.exports = {
   serveGuestPage,
-  serveHomePage,
+  servePage,
   updateGuestPage,
   defaultResponse
 };

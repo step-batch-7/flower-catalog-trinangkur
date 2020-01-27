@@ -3,7 +3,7 @@ const { Server } = require('net');
 const Request = require('./lib/request');
 const {
   serveGuestPage,
-  serveHomePage,
+  servePage,
   updateGuestPage,
   defaultResponse
 } = require('./handlers');
@@ -11,7 +11,7 @@ const {
 const findHandler = req => {
   if (req.method === 'GET' && req.url === '/guestBook.html')
     return serveGuestPage;
-  if (req.method === 'GET') return serveHomePage;
+  if (req.method === 'GET') return servePage;
   if (req.method === 'POST' && req.url === '/guestBook.html')
     return updateGuestPage;
   return defaultResponse;

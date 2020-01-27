@@ -67,7 +67,6 @@ const addComments = function(comments, reqBody) {
   };
   comments.unshift(newComments);
   fs.writeFileSync('./comments.json', JSON.stringify(comments, null, 2));
-  return parseDate(comments);
 };
 
 const replaceHTMLChar = text => {
@@ -99,15 +98,11 @@ const serveGuestPage = function(req) {
 };
 
 const updateGuestPage = function(req) {
-  let comments = JSON.parse(fs.readFileSync('./comments.json', 'utf8'));
-  comments = addComments(comments, req.body);
-  const formatedComments = formatComments(comments);
-  const content = loadTemplate(req.url, formatedComments);
+  const comments = JSON.parse(fs.readFileSync('./comments.json', 'utf8'));
+  addComments(comments, req.body);
   const res = new Response();
-  res.setHeader('Content-Type', CONTENT_TYPES.html);
-  res.setHeader('Content-Length', content.length);
-  res.statusCode = 200;
-  res.body = content;
+  res.setHeader('location', 'guestBook.html');
+  res.statusCode = 303;
   return res;
 };
 

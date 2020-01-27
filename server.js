@@ -14,7 +14,7 @@ const findHandler = req => {
       '/guestBook.html': serveGuestPage,
       other: servePage
     },
-    POST: { '/guestBook.html': updateGuestPage }
+    POST: { '/updateComment': updateGuestPage }
   };
   const methodHandler = handlers[req.method];
   return methodHandler[req.url] || methodHandler.other || defaultResponse;

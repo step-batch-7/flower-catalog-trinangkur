@@ -1,5 +1,4 @@
 const fs = require('fs');
-const Response = require('./lib/response');
 const querystring = require('querystring');
 
 const CONTENT_TYPES = require('./lib/mimeTypes');

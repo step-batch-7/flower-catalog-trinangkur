@@ -35,7 +35,6 @@ const servePage = function(req, res) {
   const contentType = getContentType(path);
   res.writeHead(code, { 'Content-Type': contentType || '*/*' });
   res.end(content);
-  return res;
 };
 
 const loadTemplate = (templateFileName, replacer) => {
@@ -105,9 +104,9 @@ const updateGuestPage = function(req, res) {
   });
 };
 
-const defaultResponse = (res, req) => {
-  req.writeHead(400);
-  req.end('unhandled method');
+const defaultResponse = (req, res) => {
+  res.writeHead(400);
+  res.end('unhandled method');
 };
 module.exports = {
   serveGuestPage,

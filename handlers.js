@@ -1,5 +1,6 @@
 const fs = require('fs');
 const Response = require('./lib/response');
+const querystring = require('querystring');
 
 const CONTENT_TYPES = require('./lib/mimeTypes');
 
@@ -85,30 +86,30 @@ const formatComments = function(comments) {
   );
 };
 
-const serveGuestPage = function(req) {
+const serveGuestPage = function(req, res) {
   let comments = JSON.parse(fs.readFileSync('./comments.json', 'utf8'));
   comments = parseDate(comments);
   let replacer = formatComments(comments);
   const content = loadTemplate(req.url, replacer);
-  const res = new Response();
   res.setHeader('Content-Type', CONTENT_TYPES.html);
-  res.setHeader('Content-Length', content.length);
-  res.statusCode = 200;
-  res.body = content;
-  return res;
+  res.end(content);
 };
 
-const updateGuestPage = function(req) {
+const updateGuestPage = function(req, res) {
+  let data = '';
   const comments = JSON.parse(fs.readFileSync('./comments.json', 'utf8'));
-  addComments(comments, req.body);
-  const res = new Response();
-  res.setHeader('location', 'guestBook.html');
-  res.statusCode = 303;
-  return res;
+  req.on('data', chunk => (data += chunk));
+  req.on('end', () => {
+    addComments(comments, querystring.parse(data));
+    res.writeHead(303, { location: 'guestBook.html' });
+    res.end();
+  });
 };
 
-const defaultResponse = () => new Response();
-
+const defaultResponse = (res, req) => {
+  req.writeHead(400);
+  req.end('unhandled method');
+};
 module.exports = {
   serveGuestPage,
   servePage,

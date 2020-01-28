@@ -1,6 +1,5 @@
-const { Server } = require('net');
+const http = require('http');
 
-const Request = require('./lib/request');
 const {
   serveGuestPage,
   servePage,
@@ -20,23 +19,15 @@ const findHandler = req => {
   return methodHandler[req.url] || methodHandler.other || defaultResponse;
 };
 
-const handleRequest = function(socket) {
-  const remote = { addr: socket.remoteAddress, port: socket.remotePort };
-  console.log('connected with', remote);
-  socket.setEncoding('utf8');
-  socket.on('data', text => {
-    const req = Request.parse(text);
-    const handler = findHandler(req);
-    const res = handler(req);
-    res.writeTo(socket);
-  });
+const requestListener = function(req, res) {
+  console.log('Request: ', req.url, req.method);
+  handler = findHandler(req);
+  handler(req, res);
 };
 
 const main = (port = 3000) => {
-  const server = new Server();
-  server.on('listening', () => console.log('server started', server.address()));
-  server.on('connection', socket => handleRequest(socket));
-  server.listen(port);
+  const server = new http.Server(requestListener);
+  server.listen(port, () => console.log(`listening at :${port}`));
 };
 
-main();
+main(process.argv[2]);

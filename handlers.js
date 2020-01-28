@@ -17,23 +17,24 @@ const getNoFoundResponse = function() {
 </html>`;
 };
 
-const getContentAndType = function(path) {
+const getContentAndCode = function(path) {
   const stat = fs.existsSync(path) && fs.statSync(path);
-  if (!stat || !stat.isFile()) return ['text/html', getNoFoundResponse()];
-  const [, extension] = path.match(/.*\.(.*)$/) || [];
-  const contentType = CONTENT_TYPES[extension];
+  if (!stat || !stat.isFile()) return [getNoFoundResponse(), 404];
   const content = fs.readFileSync(path);
-  return [contentType, content];
+  return [content, 200];
 };
 
-const servePage = function(req) {
+const getContentType = function(path) {
+  const [, extension] = path.match(/.*\.(.*)$/) || [];
+  return CONTENT_TYPES[extension];
+};
+
+const servePage = function(req, res) {
   const path = getPath(req.url);
-  const [contentType, content] = getContentAndType(path);
-  const res = new Response();
-  res.setHeader('Content-Type', contentType);
-  res.setHeader('Content-Length', content.length);
-  res.statusCode = 200;
-  res.body = content;
+  const [content, code] = getContentAndCode(path);
+  const contentType = getContentType(path);
+  res.writeHead(code, { 'Content-Type': contentType || '*/*' });
+  res.end(content);
   return res;
 };
 

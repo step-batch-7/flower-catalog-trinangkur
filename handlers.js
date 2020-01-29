@@ -2,26 +2,20 @@ const fs = require('fs');
 const querystring = require('querystring');
 
 const CONTENT_TYPES = require('./lib/mimeTypes');
+const App = require('./lib/app');
+const {
+  getNoFoundResponse,
+  replaceSpecialChar,
+  formatComments
+} = require('./lib/utils');
 
 const getPath = function(url) {
   if (url === '/') return `${__dirname}/public/index.html`;
   return `${__dirname}/public/${url}`;
 };
 
-const getNoFoundResponse = function() {
-  return `<html>
-  <head><title>Not Found</title></head>
-  <body>
-    <h1>404 FILE NOT FOUND</h1>
-  </body>
-</html>`;
-};
-
-const getContentAndCode = function(path) {
-  const stat = fs.existsSync(path) && fs.statSync(path);
-  if (!stat || !stat.isFile()) return [getNoFoundResponse(), 404];
-  const content = fs.readFileSync(path);
-  return [content, 200];
+const doesFileExist = function(path) {
+  return fs.existsSync(path) && fs.statSync(path).isFile();
 };
 
 const getContentType = function(path) {
@@ -29,11 +23,15 @@ const getContentType = function(path) {
   return CONTENT_TYPES[extension];
 };
 
-const servePage = function(req, res) {
+const servePage = function(req, res, next) {
   const path = getPath(req.url);
-  const [content, code] = getContentAndCode(path);
+  if (!doesFileExist) {
+    next();
+    return;
+  }
+  const content = fs.readFileSync(path);
   const contentType = getContentType(path);
-  res.writeHead(code, { 'Content-Type': contentType || '*/*' });
+  res.setHeader('Content-Type', contentType);
   res.end(content);
 };
 
@@ -51,14 +49,6 @@ const parseDate = comments => {
   return comments;
 };
 
-const replaceSpecialChar = function(text) {
-  text = text.replace(/%0D%0A/g, '\r\n');
-  text = text.replace(/\+/g, ' ');
-  text = text.replace(/%3F/g, '?');
-  text = text.replace(/%2C/g, ',');
-  return text;
-};
-
 const addComments = function(comments, reqBody) {
   const newComments = {
     date: new Date(),
@@ -67,21 +57,6 @@ const addComments = function(comments, reqBody) {
   };
   comments.unshift(newComments);
   fs.writeFileSync('./comments.json', JSON.stringify(comments, null, 2));
-};
-
-const replaceHTMLChar = text => {
-  return text.replace(/\r\n/g, '<br/>');
-};
-
-const formatComments = function(comments) {
-  return comments.reduce(
-    (text, comment) =>
-      text +
-      `<h3>${replaceHTMLChar(comment.name)}</h3>
-      <p>commented on: ${comment.date.toLocaleString()}</p>
-      <p class="comment">${replaceHTMLChar(comment.comment)}</p>`,
-    ''
-  );
 };
 
 const serveGuestPage = function(req, res) {
@@ -94,23 +69,39 @@ const serveGuestPage = function(req, res) {
 };
 
 const updateGuestPage = function(req, res) {
-  let data = '';
   const comments = JSON.parse(fs.readFileSync('./comments.json', 'utf8'));
+  addComments(comments, querystring.parse(req.body));
+  res.writeHead(303, { location: 'guestBook.html' });
+  res.end();
+};
+
+const serveNotFound = (req, res) => {
+  res.writeHead(404);
+  res.end(getNoFoundResponse());
+};
+
+const readBody = function(req, res, next) {
+  let data = '';
   req.on('data', chunk => (data += chunk));
   req.on('end', () => {
-    addComments(comments, querystring.parse(data));
-    res.writeHead(303, { location: 'guestBook.html' });
-    res.end();
+    req.body = data;
+    next();
   });
 };
 
-const defaultResponse = (req, res) => {
+const methodNotAllowed = function(req, res) {
   res.writeHead(400);
-  res.end('unhandled method');
+  res.end();
 };
-module.exports = {
-  serveGuestPage,
-  servePage,
-  updateGuestPage,
-  defaultResponse
-};
+
+const app = new App();
+
+app.use(readBody);
+app.get('/guestBook.html', serveGuestPage);
+app.get('', servePage);
+app.post('/updateComment', updateGuestPage);
+app.get('', serveNotFound);
+app.post('', serveNotFound);
+app.use(methodNotAllowed);
+
+module.exports = { app };

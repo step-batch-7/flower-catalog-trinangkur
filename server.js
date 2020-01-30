@@ -1,10 +1,6 @@
 const http = require('http');
 
-const { app } = require('./handlers');
-
-const requestListener = function(req, res) {
-  app.serve(req, res);
-};
+const { requestListener } = require('./handlers');
 
 const main = (port = 3000) => {
   const server = new http.Server(requestListener);

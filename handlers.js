@@ -108,4 +108,8 @@ app.get('', serveNotFound);
 app.post('', serveNotFound);
 app.use(methodNotAllowed);
 
-module.exports = { app };
+const requestListener = function(req, res) {
+  app.serve(req, res);
+};
+
+module.exports = { requestListener };

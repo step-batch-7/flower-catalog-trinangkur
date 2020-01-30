@@ -25,7 +25,7 @@ const getContentType = function(path) {
 
 const servePage = function(req, res, next) {
   const path = getPath(req.url);
-  if (!doesFileExist) {
+  if (!doesFileExist(path)) {
     next();
     return;
   }

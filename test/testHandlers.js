@@ -22,3 +22,12 @@ describe('Abeliophyllum', function() {
       .expect('Content-Length', '1250');
   });
 });
+
+describe('Tamplate GuestBook', function() {
+  it('should give guestBook page', function(done) {
+    request(requestListener)
+      .get('/guestBook.html')
+      .expect(200)
+      .expect('Content-Type', 'text/html', done);
+  });
+});

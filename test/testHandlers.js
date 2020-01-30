@@ -31,3 +31,20 @@ describe('Tamplate GuestBook', function() {
       .expect('Content-Type', 'text/html', done);
   });
 });
+
+describe('badFiles', function() {
+  it('should say 404 for given invalid path', function(done) {
+    request(requestListener)
+      .get('/bad.html')
+      .expect(404)
+      .expect(/FILE NOT FOUND/, done);
+  });
+});
+
+describe('unhandled method', function() {
+  it('should get statusCode as 400 for unhandled method', function(done) {
+    request(requestListener)
+      .put('/')
+      .expect(400, done);
+  });
+});

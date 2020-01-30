@@ -10,7 +10,9 @@ const {
 } = require('./lib/utils');
 
 const getPath = function(url) {
-  if (url === '/') return `${__dirname}/public/index.html`;
+  if (url === '/') {
+    return `${__dirname}/public/index.html`;
+  }
   return `${__dirname}/public/${url}`;
 };
 
@@ -62,7 +64,7 @@ const addComments = function(comments, reqBody) {
 const serveGuestPage = function(req, res) {
   let comments = JSON.parse(fs.readFileSync('./comments.json', 'utf8'));
   comments = parseDate(comments);
-  let replacer = formatComments(comments);
+  const replacer = formatComments(comments);
   const content = loadTemplate(req.url, replacer);
   res.setHeader('Content-Type', CONTENT_TYPES.html);
   res.end(content);
@@ -82,7 +84,9 @@ const serveNotFound = (req, res) => {
 
 const readBody = function(req, res, next) {
   let data = '';
-  req.on('data', chunk => (data += chunk));
+  req.on('data', chunk => {
+    data += chunk;
+  });
   req.on('end', () => {
     req.body = data;
     next();

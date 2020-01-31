@@ -48,3 +48,11 @@ describe('unhandled method', function() {
       .expect(400, done);
   });
 });
+
+describe('POST given wrong path', function() {
+  it('should respond with 404', function(done) {
+    request(requestListener)
+      .post('/bad')
+      .expect(404, done);
+  });
+});
